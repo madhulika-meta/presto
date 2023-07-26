@@ -33,6 +33,7 @@ import io.airlift.slice.InvalidUtf8Exception;
 import io.airlift.slice.Slice;
 import io.airlift.slice.SliceUtf8;
 import io.airlift.slice.Slices;
+import org.apache.commons.lang.WordUtils;
 
 import java.text.Normalizer;
 import java.util.OptionalInt;
@@ -670,6 +671,24 @@ public final class StringFunctions
     public static Slice charUpper(@SqlType("char(x)") Slice slice)
     {
         return upper(slice);
+    }
+
+    @Description("converts the string to proper case")
+    @ScalarFunction
+    @LiteralParameters("x")
+    @SqlType("varchar(x)")
+    public static Slice proper(@SqlType("varchar(x)") Slice slice)
+    {
+        return WordUtils.capitalizeFully(slice);
+    }
+
+    @Description("converts the string to proper case")
+    @ScalarFunction("proper")
+    @LiteralParameters("x")
+    @SqlType("char(x)")
+    public static Slice charProper(@SqlType("char(x)") Slice slice)
+    {
+        return WordUtils.capitalizeFully(slice);
     }
 
     private static Slice pad(Slice text, long targetLength, Slice padString, int paddingOffset)

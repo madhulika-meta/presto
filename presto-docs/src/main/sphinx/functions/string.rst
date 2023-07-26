@@ -77,6 +77,10 @@ String Functions
 
     Removes leading whitespace from ``string``.
 
+.. function:: proper(string) -> varchar
+
+    Converts ``string`` to proper case.
+
 .. function:: replace(string, search) -> varchar
 
     Removes all instances of ``search`` from ``string``.
@@ -251,4 +255,3 @@ Unicode Functions
 
     Generates a double value between 0.0 and 1.0 based on the hash of the given ``varchar``.
     This function is useful for deterministic sampling of data.
-

@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import io.airlift.slice.Slice;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.apache.commons.lang.WordUtils;
 
 import static com.facebook.presto.common.type.BigintType.BIGINT;
 import static com.facebook.presto.common.type.BooleanType.BOOLEAN;
@@ -914,6 +915,30 @@ public class TestStringFunctions
     }
 
     @Test
+    public void testProper()
+    {
+        assertFunction("PROPER('')", createVarcharType(0), "");
+        assertFunction("PROPER('Hello World')", createVarcharType(11), "Hello World");
+        assertFunction("PROPER('hello world')", createVarcharType(11), "Hello World");
+        assertFunction("PROPER('hELLO wORLD')", createVarcharType(11), "Hello World");
+        assertFunction("PROPER('what!!')", createVarcharType(6), "What!!");
+        assertFunction("PROPER('\u00D6sterreich')", createVarcharType(10), properByCodePoint("\u00D6") + "Sterreich");
+        assertFunction("PROPER('From\uD801\uDC2DTo')", createVarcharType(7), "From" + properByCodePoint("\uD801\uDC2D") + "To");
+    }
+
+    @Test
+    public void testCharProper()
+    {
+        assertFunction("PROPER(CAST('' AS CHAR(10)))", createCharType(10), padRight("", 10));
+        assertFunction("PROPER(CAST('Hello World' AS CHAR(11)))", createCharType(11), padRight("Hello World", 11));
+        assertFunction("PROPER(CAST('hello world' AS CHAR(11)))", createCharType(11), padRight("Hello World", 11));
+        assertFunction("PROPER(CAST('hELLO wORLD' AS CHAR(11)))", createCharType(11), padRight("Hello World", 11));
+        assertFunction("PROPER(CAST('what!!' AS CHAR(6)))", createCharType(6), padRight("What!!", 6));
+        assertFunction("PROPER(CAST('\u00D6sterreich' AS CHAR(10)))", createCharType(10), padRight(properByCodePoint("\u00D6") + "Sterreich", 10));
+        assertFunction("PROPER(CAST('From\uD801\uDC2DTo' AS CHAR(7)))", createCharType(7), padRight("From" + properByCodePoint("\uD801\uDC2D") + "To", 7));
+    }
+
+    @Test
     public void testLeftPad()
     {
         assertFunction("LPAD('text', 5, 'x')", VARCHAR, "xtext");
@@ -1008,6 +1033,12 @@ public class TestStringFunctions
     private static String upperByCodePoint(String string)
     {
         int[] upperCodePoints = string.codePoints().map(Character::toUpperCase).toArray();
+        return new String(upperCodePoints, 0, upperCodePoints.length);
+    }
+
+    private static String properByCodePoint(String string)
+    {
+        int[] upperCodePoints = string.codePoints().map(WordUtils.capitalizeFully).toArray();
         return new String(upperCodePoints, 0, upperCodePoints.length);
     }
 
